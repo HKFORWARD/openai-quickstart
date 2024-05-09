@@ -1,5 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain.chains import LLMChain
+from langchain.llms import ChatGLM
 
 from langchain.prompts.chat import (
     ChatPromptTemplate,
@@ -27,9 +28,14 @@ class TranslationChain:
         chat_prompt_template = ChatPromptTemplate.from_messages(
             [system_message_prompt, human_message_prompt]
         )
-
-        # 为了翻译结果的稳定性，将 temperature 设置为 0
-        chat = ChatOpenAI(model_name=model_name, temperature=0, verbose=verbose)
+        if model_name == "gpt-3.5-turbo":
+            # 为了翻译结果的稳定性，将 temperature 设置为 0
+            chat = ChatOpenAI(model_name=model_name, temperature=0, verbose=verbose)
+        elif model_name == "chat_glm":
+            endpoint_url = ("http://127.0.0.1:8000")  # endpoint_url 填写跑模型的地址
+            chat = ChatGLM(endpoint_url=endpoint_url, temperature=0, verbose=verbose)
+        else:
+            raise Exception(f"This model is not supported. ModelName:{model_name}")
 
         self.chain = LLMChain(llm=chat, prompt=chat_prompt_template, verbose=verbose)
 
