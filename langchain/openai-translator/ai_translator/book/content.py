@@ -68,8 +68,15 @@ class TableContent(Content):
             self.translation = None
             self.status = False
 
+    def _df_to_pipe_separated_str(self, df):
+        # Convert the DataFrame to a string with pipe separator using to_csv
+        buffer = StringIO()
+        df.to_csv(buffer, sep="|", header=False, index=False)
+        return buffer.getvalue().strip()
+    
     def __str__(self):
         return self.original.to_string(header=False, index=False)
+        return self._df_to_pipe_separated_str(self.original)
 
     def iter_items(self, translated=False):
         target_df = self.translation if translated else self.original
@@ -82,4 +89,5 @@ class TableContent(Content):
         target_df.at[row_idx, col_idx] = new_value
 
     def get_original_as_str(self):
-        return self.original.to_string(header=False, index=False)
+        # return self.original.to_string(header=False, index=False, sep="|")
+        return self._df_to_pipe_separated_str(self.original)
